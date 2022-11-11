@@ -1,6 +1,7 @@
 package main
 
 import (
+    kingpin "gopkg.in/alecthomas/kingpin.v2"
     "github.com/labstack/echo/v4"
     "net/http"
     "regexp"
@@ -8,7 +9,17 @@ import (
     "fmt"
 )
 
+var (
+    address = kingpin.Flag("address", "Listen Address").Default("0.0.0.0:5432").String()
+    sslKey = kingpin.Flag("key", "Private Key").Default("server.key").String()
+    sslCert = kingpin.Flag("cert", "Certificate").Default("server.pem").String()
+)
+
+
 func main() {
+
+    kingpin.HelpFlag.Short('h')
+    kingpin.Parse()
 
     expGhRelease := `^(?:https?://)?github\.com(?:/[^/\s]+)(?:/[^/\s]+)?/(?:releases|archive)(?:/[^/\s]+)*/?$`
     expGhBlob := `^(?:https?://)?github\.com(?:/[^/\s]+)(?:/[^/\s]+)?/(?:blob|raw)(?:/[^/\s]+)*/?$`
@@ -39,11 +50,11 @@ func main() {
             redirectUrl := strings.Replace(realUrl, "github.com", "cdn.jsdelivr.net/gh", 1)
             return c.Redirect(302, redirectUrl)
         }
-     })
+    })
     e.GET("/", func(c echo.Context) error {
         return c.String(200, "It works")
     })
-    e.Logger.Fatal(e.Start(":5432"))
+    e.Logger.Fatal(e.StartTLS(*address, *sslCert, *sslKey))
 }
 
 func getRelease(c echo.Context, requestURL string) error {
