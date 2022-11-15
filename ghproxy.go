@@ -12,7 +12,7 @@ import (
 var (
     address = kingpin.Flag("address", "Listen Address").Default("0.0.0.0:5432").String()
     sslKey = kingpin.Flag("key", "Private Key").Default("server.key").String()
-    sslCert = kingpin.Flag("cert", "Certificate").Default("server.pem").String()
+    sslCert = kingpin.Flag("cert", "Certificate").Default("server.crt").String()
 )
 
 
